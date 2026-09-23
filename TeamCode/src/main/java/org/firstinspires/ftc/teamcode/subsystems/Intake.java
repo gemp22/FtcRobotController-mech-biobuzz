@@ -76,7 +76,7 @@ public class Intake {
     // --- Flag to control HuskyLens camera updates ---
 
     // --- State variables to track last set power ---
-    private double lastIntakeRollerPower = -999;
+//    private double lastIntakeRollerPower = -999;
 
     public Intake(RobotHardware robot) {
 //        this.intakeRoller = robot.intakeRoller;
@@ -129,8 +129,9 @@ public class Intake {
             switch (currentIntakeState) {
                 case FORWARD:
                     // NEW: Use PIDF to maintain the configured forward RPM
-                    rollerController.setRPM(forwardRPM);
-//                    rollerController.setPower(1.0);
+//                    rollerController.setRPM(forwardRPM);
+                    rollerController.setPower(1.0);
+
                     /* --- OLD CODE ---
 
                     intakeRoller.setPower(INTAKE_ROLLER_SPEED_FORWARD);
@@ -287,5 +288,10 @@ public class Intake {
 
     public IntakeRoller getRollerController() {
         return rollerController;
+    }
+
+    public void setIntakeRollerPower(double power) {
+//        lastIntakeRollerPower = power;
+        rollerController.setPower(power);
     }
 }

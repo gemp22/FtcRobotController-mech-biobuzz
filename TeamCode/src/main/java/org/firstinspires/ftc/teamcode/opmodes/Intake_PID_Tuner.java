@@ -49,6 +49,9 @@ public class Intake_PID_Tuner extends OpMode {
     private static final double D_INCREMENT = 0.0001;
     private static final double F_INCREMENT = 0.001;
 
+    private double intakeSpeed = 0.0;
+
+
     @Override
     public void init() {
         robot = new RobotHardware();
@@ -117,6 +120,16 @@ public class Intake_PID_Tuner extends OpMode {
 
 
 
+
+        if (gamepad1.dpadUpWasPressed()) intakeSpeed -= .05;
+        if (gamepad1.dpadDownWasPressed()) intakeSpeed += .05;
+
+        if (gamepad1.dpadRightWasPressed()) intakeSpeed = 0;
+
+        intakeSpeed = Math.max(Math.min(intakeSpeed, 1.0), -1.0);
+
+        intake.setIntakeRollerPower(intakeSpeed);
+
         // Subsystem Heartbeats
         drivetrain.update();
         intake.update();
@@ -141,6 +154,7 @@ public class Intake_PID_Tuner extends OpMode {
         telemetry.addData("Lift Height", lift.getLiftHeight());
         telemetry.addData("Lift Stick Power", lift.manualPower);
         telemetry.addData("Is Limit Pressed", lift.isLimitPressed());
+        telemetry.addData("Flywheel Motor Power", intakeSpeed);
 
         telemetry.addLine("\n--- PS4 CONTROLS ---");
         telemetry.addLine("G1: Circle:FWD | Square:REV | Triangle:OFF");
