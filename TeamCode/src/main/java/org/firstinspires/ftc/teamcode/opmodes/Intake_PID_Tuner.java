@@ -6,9 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.subsystems.Lift;
+import org.firstinspires.ftc.teamcode.oldcode.Lift;
 import org.firstinspires.ftc.teamcode.util.IntakeRoller;
-import org.firstinspires.ftc.teamcode.util.LiftArm;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.MovingStatistics;
@@ -38,6 +37,7 @@ public class Intake_PID_Tuner extends OpMode {
     private Intake intake;
     private Drivetrain drivetrain;
 
+    private IntakeRoller roller;
     private Lift lift;
 
     private MovingStatistics loopTimes = new MovingStatistics(100);
@@ -49,13 +49,22 @@ public class Intake_PID_Tuner extends OpMode {
     private static final double D_INCREMENT = 0.0001;
     private static final double F_INCREMENT = 0.001;
 
+    private Intake.FeederPosition FeederPosition = Intake.FeederPosition.DOWN;
+    private Intake.FeederPosition PreviousFeederPosition = Intake.FeederPosition.DOWN;
+
+    private double INTAKE_SPEED_INCREMENT = 0.05;
+
+    private double current_intake_speed = 0.0;
+
+    private boolean isIntakeMode = true;
+
     @Override
     public void init() {
         robot = new RobotHardware();
         robot.init(hardwareMap);
         intake = new Intake(robot);
         drivetrain = new Drivetrain(robot);
-        lift = new Lift(robot);
+        roller = new IntakeRoller(robot.intakeRoller1, robot.intakeRoller2);
 
         // Enable debug by default
         intake.setDebug(true);
@@ -76,7 +85,6 @@ public class Intake_PID_Tuner extends OpMode {
         // G1: Driving & Intake Toggles (Matching TeleOp Main)
         drivetrain.drive(-gamepad1.left_stick_y, gamepad1.left_stick_x * 1.1, -gamepad1.right_stick_x);
 
-        lift.setManualControl(-gamepad2.left_stick_y);
         
         if (gamepad1.b) intake.changeState(Intake.IntakeState.FORWARD);
         if (gamepad1.x) intake.changeState(Intake.IntakeState.REVERSE);
@@ -84,6 +92,15 @@ public class Intake_PID_Tuner extends OpMode {
 
         // G2: PIDF Tuning
         IntakeRoller roller = intake.getRollerController();
+
+        if (gamepad1.rightBumperWasPressed()) {
+            if (isIntakeMode) {
+                isIntakeMode = false;
+            }
+            else {
+                isIntakeMode = true;
+            }
+        }
         
         // Debug Toggle (Back Button)
         if (gamepad2.backWasPressed()) {
@@ -115,12 +132,37 @@ public class Intake_PID_Tuner extends OpMode {
         if (gamepad2.right_bumper) roller.adjustF(F_INCREMENT);
         if (gamepad2.left_bumper)  roller.adjustF(-F_INCREMENT);
 
+        if (!isIntakeMode) {
+            if (gamepad1.dpadUpWasPressed()) {
+                FeederPosition = Intake.FeederPosition.UP;
+            }
 
+            if (gamepad1.dpadDownWasPressed()) {
+                FeederPosition = Intake.FeederPosition.DOWN;
+            }
+        } else {
+            if (gamepad1.dpadUpWasPressed()) {
+                current_intake_speed += INTAKE_SPEED_INCREMENT;
+                roller.setPower(current_intake_speed);
+            }
+            if (gamepad1.dpadDownWasPressed()) {
+                current_intake_speed -= INTAKE_SPEED_INCREMENT;
+                roller.setPower(current_intake_speed);
+            }
+            if (gamepad1.dpadRightWasPressed()) {
+                roller.setPower(0);
+            }
+        }
+
+        if (PreviousFeederPosition != FeederPosition) {
+            intake.setFeederPosition(FeederPosition);
+        }
+
+        PreviousFeederPosition = FeederPosition;
 
         // Subsystem Heartbeats
         drivetrain.update();
         intake.update();
-        lift.update();
 
         // Telemetry Update
         updateTelemetry();
@@ -138,9 +180,10 @@ public class Intake_PID_Tuner extends OpMode {
         telemetry.addData("Forward RPM (Triangle/Square)", "%.0f", intake.getForwardRPM());
         telemetry.addData("RPM", "Tgt:%.0f | Act:%.0f", roller.getTargetRPM(), roller.getCurrentRPM());
         telemetry.addData("State", intake.getIntakeState().toString());
-        telemetry.addData("Lift Height", lift.getLiftHeight());
-        telemetry.addData("Lift Stick Power", lift.manualPower);
-        telemetry.addData("Is Limit Pressed", lift.isLimitPressed());
+        telemetry.addData("Feeder Position", intake.getFeederPosition());
+        telemetry.addData("Feeder Position Ticks", intake.getFeederPositionTicks());
+        telemetry.addData("Tuner Mode", isIntakeMode ? "Intake Mode" : "Feeder Mode");
+        telemetry.addData("Current Intake Power", current_intake_speed);
 
         telemetry.addLine("\n--- PS4 CONTROLS ---");
         telemetry.addLine("G1: Circle:FWD | Square:REV | Triangle:OFF");

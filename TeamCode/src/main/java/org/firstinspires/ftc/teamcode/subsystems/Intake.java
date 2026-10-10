@@ -50,6 +50,8 @@ public class Intake {
     private static final double MID_GATE_CLOSE_POS = .743;
     private static final double RIGHT_GATE_OPEN_POS = 0;
     private static final double RIGHT_GATE_CLOSE_POS = 0.74;
+
+
     // --- enum for the Intake states ---
     public enum IntakeState {
         OFF,
@@ -57,16 +59,24 @@ public class Intake {
         REVERSE
     }
 
+    public enum FeederPosition {
+        UP,
+        DOWN
+    }
+
     // --- Hardware ---
     private final HuskyLensUtil intakeCamera;
+
+    private final Servo feederServo1;
+    private final Servo feederServo2;
     // --- State ---
 
 
     private IntakeState currentIntakeState = IntakeState.OFF;
-
-
-
     private IntakeState previousIntakeState = IntakeState.OFF;
+
+    private FeederPosition currentFeederPosition = FeederPosition.DOWN;
+    private double lastFeederUpPosition = 0;
 
     private double forwardRPM = 2200.0;
 
@@ -76,7 +86,7 @@ public class Intake {
     // --- Flag to control HuskyLens camera updates ---
 
     // --- State variables to track last set power ---
-    private double lastIntakeRollerPower = -999;
+//    private double lastIntakeRollerPower = -999;
 
     public Intake(RobotHardware robot) {
 //        this.intakeRoller = robot.intakeRoller;
@@ -85,6 +95,12 @@ public class Intake {
         // NEW: Cast motors to DcMotorEx to support velocity-based PIDF control
         DcMotorEx motor1 = robot.intakeRoller1;
         DcMotorEx motor2 = robot.intakeRoller2;
+
+        Servo intakeServo1 = robot.intakeServo1;
+        Servo intakeServo2 = robot.intakeServo2;
+
+        this.feederServo1 = robot.feederServo1;
+        this.feederServo2 = robot.feederServo2;
 
         this.intakeCamera = new HuskyLensUtil(robot);
 
@@ -147,14 +163,14 @@ public class Intake {
                     break;
                 case OFF:
                     // NEW: Use controller to stop and reset PID internal state
-                    rollerController.stop();
+//                    rollerController.stop();
                     /* --- OLD CODE ---
                     intakeRoller.setPower(0);
                     intakeRoller2.setPower(0);
                     */
                     break;
                 default:
-                    rollerController.stop();
+//                    rollerController.stop();
                     break;
             }
             previousIntakeState = currentIntakeState;
@@ -211,9 +227,9 @@ public class Intake {
     public void setForwardRPM(double rpm) {
         this.forwardRPM = rpm;
         // If we are currently in FORWARD state, update the controller immediately
-        if (currentIntakeState == IntakeState.FORWARD) {
+//        if (currentIntakeState == IntakeState.FORWARD) {
             rollerController.setRPM(forwardRPM);
-        }
+//        }
     }
 
     /**
@@ -255,10 +271,7 @@ public class Intake {
         return currentIntakeState;
     }
 
-    /**
-     * Gets the current state of the feeders.
-     * @return The FeederState enum (OFF, FORWARD, or REVERSE).
-     */
+
 
     public void addIntakeCameraTelemetry(Telemetry telemetry) {
         intakeCamera.addTelemetry(telemetry);
@@ -273,13 +286,47 @@ public class Intake {
         currentIntakeState = newState;
     }
 
-    public void setIntakeRoller(boolean on) {
-        if (on) {
-            changeState(IntakeState.FORWARD);
-        } else {
-            changeState(IntakeState.OFF);
+    public void setFeederPosition(FeederPosition position) {
+        if (position == FeederPosition.UP) {
+            if (lastFeederUpPosition == 0.0) {
+                feederServo1.setPosition(1.0);
+                feederServo2.setPosition(1.0);
+                lastFeederUpPosition = 1.0;
+            } else {
+                feederServo1.setPosition(0.0);
+                feederServo2.setPosition(0.0);
+                lastFeederUpPosition = 0.0;
+            }
+        }
+        else if (position == FeederPosition.DOWN) {
+            feederServo1.setPosition(0.5);
+            feederServo2.setPosition(0.5);
         }
     }
+    /**
+     * Gets the current position of the feeder.
+     * @return The FeederState enum (UP or DOWN).
+     */
+    public String getFeederPosition() {
+        if (currentFeederPosition == FeederPosition.UP) {
+            return "UP";
+            }
+        else if (currentFeederPosition == FeederPosition.DOWN) {
+            return "DOWN";
+        }
+        return "UNKNOWN";
+    }
+
+    public Double getFeederPositionTicks() {
+        if (currentFeederPosition == FeederPosition.UP) {
+            return lastFeederUpPosition;
+            }
+        else if (currentFeederPosition == FeederPosition.DOWN) {
+            return 0.5;
+        }
+        return 0.1;
+    }
+
 
     public void enableCameraSensing(boolean enable) {
         this.isCameraSensingEnabled = enable;
@@ -289,3 +336,5 @@ public class Intake {
         return rollerController;
     }
 }
+
+

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.util;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -52,6 +53,7 @@ public class IntakeRoller {
     private final DcMotorEx intakeMotor1;
     private final DcMotorEx intakeMotor2;
 
+
     public IntakeRoller(DcMotorEx motor1, DcMotorEx motor2) {
         this(motor1, motor2, DEFAULT_KP, DEFAULT_KI, DEFAULT_KD, DEFAULT_KF);
     }
@@ -59,6 +61,7 @@ public class IntakeRoller {
     public IntakeRoller(DcMotorEx motor1, DcMotorEx motor2, double kP, double kI, double kD, double kF) {
         this.intakeMotor1 = motor1;
         this.intakeMotor2 = motor2;
+
 
         setPIDFCoefficients(kP, kI, kD, kF);
 
@@ -78,6 +81,7 @@ public class IntakeRoller {
 
         pidTimer.reset();
     }
+
 
     /**
      * Updates the PIDF gains. Resets the internal state to prevent erratic behavior after change.
@@ -99,6 +103,10 @@ public class IntakeRoller {
                 plotClient.sendKeyValue(time, "PID_F", String.format(Locale.US, "%.5f", this.kF));
             }
         }
+    }
+
+    public void setServoPositions(double servo1, double servo2) {
+
     }
 
     /**
@@ -294,6 +302,7 @@ public class IntakeRoller {
             plotClient.sendKeyValue(time, "d", String.format(Locale.US, "%.3f", d));
         }
     }
+
 
     /**
      * E-Stop for the intake. Stops motors and clears internal control states.

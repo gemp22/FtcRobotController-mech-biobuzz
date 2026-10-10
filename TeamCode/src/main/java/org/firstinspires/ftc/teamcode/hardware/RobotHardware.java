@@ -41,13 +41,21 @@ public class RobotHardware {
 
     public static final String INTAKE_ROLLER_NAME = "intake_roller_1";
     public static final String INTAKE_ROLLER_2_NAME = "intake_roller_2";
-
-
     public static final String INTAKE_CAMERA_NAME = "huskylens";
+    public static final String INTAKE_SERVO_1_NAME = "intake_servo_1";
+    public static final String INTAKE_SERVO_2_NAME = "intake_servo_2";
 
-    public static final String LIFT_MOTOR_1_NAME = "lift_motor_1";
-    public static final String LIFT_MOTOR_2_NAME = "lift_motor_2";
-    public static final String LIFT_LIMIT_SWITCH_NAME = "lift_limit_switch";
+    public static final String FEEDER_SERVO_1_NAME = "feeder_servo_1";
+    public static final String FEEDER_SERVO_2_NAME = "feeder_servo_2";
+
+    public static final String SHOOTER_MOTOR_1_NAME = "shooter_motor_1";
+    public static final String SHOOTER_MOTOR_2_NAME = "shooter_motor_2";
+
+
+//    public static final String LIFT_MOTOR_1_NAME = "lift_motor_1";
+//    public static final String LIFT_MOTOR_2_NAME = "lift_motor_2";
+
+    //    public static final String LIFT_LIMIT_SWITCH_NAME = "lift_limit_switch";
     //    // Intake & Ball Transport
 //    public static final String INTAKE_ROLLER_NAME = "intake_roller";
 //    public static final String ROLLER_BED_MOTOR_NAME = "turret_encoder"; // we use the same port for the turret encoder and the roller bed motor
@@ -96,9 +104,12 @@ public class RobotHardware {
 
     public HuskyLens huskyLens;
 
+    public DcMotorEx shooterMotor1;
+    public DcMotorEx shooterMotor2;
 
-    public DcMotorEx liftMotor1;
-    public DcMotorEx liftMotor2;
+
+    public Servo feederServo1;
+    public Servo feederServo2;
     public TouchSensor liftLimitSwitch;
 
     // Intake & Ball Transport
@@ -117,6 +128,9 @@ public class RobotHardware {
     public DcMotorEx intakeRoller1;
 
     public DcMotorEx intakeRoller2;
+
+    public Servo intakeServo1;
+    public Servo intakeServo2;
 
     // Color Sensors
 //    public NormalizedColorSensor leftCS;
@@ -155,9 +169,17 @@ public class RobotHardware {
         odo = hardwareMap.get(GoBildaPinpointDriver.class, ODO_NAME);
         intakeRoller1 = hardwareMap.get(DcMotorEx.class, INTAKE_ROLLER_NAME);
         intakeRoller2 = hardwareMap.get(DcMotorEx.class, INTAKE_ROLLER_2_NAME);
-        liftMotor1 = hardwareMap.get(DcMotorEx.class, LIFT_MOTOR_1_NAME);
-        liftMotor2 = hardwareMap.get(DcMotorEx.class, LIFT_MOTOR_2_NAME);
-        liftLimitSwitch = hardwareMap.get(TouchSensor.class, LIFT_LIMIT_SWITCH_NAME);
+        intakeServo1 = hardwareMap.get(Servo.class, INTAKE_SERVO_1_NAME);
+        intakeServo2 = hardwareMap.get(Servo.class, INTAKE_SERVO_2_NAME);
+        feederServo1 = hardwareMap.get(Servo.class, FEEDER_SERVO_1_NAME);
+        feederServo2 = hardwareMap.get(Servo.class, FEEDER_SERVO_2_NAME);
+        shooterMotor1 = hardwareMap.get(DcMotorEx.class, SHOOTER_MOTOR_1_NAME);
+        shooterMotor2 = hardwareMap.get(DcMotorEx.class, SHOOTER_MOTOR_2_NAME);
+
+//        liftLimitSwitch = hardwareMap.get(TouchSensor.class, LIFT_LIMIT_SWITCH_NAME);
+//        liftMotor1 = hardwareMap.get(DcMotorEx.class, LIFT_MOTOR_1_NAME);
+//        liftMotor2 = hardwareMap.get(DcMotorEx.class, LIFT_MOTOR_2_NAME);
+
 
         // Intake & Ball Transport
 //        intakeRoller = hardwareMap.get(DcMotor.class, INTAKE_ROLLER_NAME);

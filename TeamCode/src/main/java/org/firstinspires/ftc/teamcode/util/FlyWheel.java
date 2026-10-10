@@ -12,7 +12,7 @@ import java.util.Locale;
 
 public class FlyWheel {
     // --- DEBUGGING ---
-    private boolean isDebugEnabled = false;
+    public boolean isDebugEnabled = false;
     private UdpClientPlot plotClient;
     private String plotClientHost = "192.168.43.100";
     private int plotClientPort = 7778;
@@ -35,8 +35,8 @@ public class FlyWheel {
     private double kP, kI, kD, kF;
 
     // --- Hardware ---
-    private final DcMotorEx motor1;
-    private final DcMotorEx motor2;
+    private final DcMotorEx motor;
+
 
     // --- PID Control Variables ---
     private double targetRPM = 0.0;
@@ -47,32 +47,33 @@ public class FlyWheel {
 
     private static final double MAX_INTEGRAL_SUM = 250;
     private static final double INTEGRAL_RESET_THRESHOLD_RPM = 50;
+    public enum FlyWheelNum {
+        ONE,
+        TWO
+    }
+    private FlyWheelNum flyWheelNumber;
 
     /**
      * Main constructor for the FlyWheel class.
      */
-    public FlyWheel(DcMotorEx motor1, DcMotorEx motor2) {
-        this(motor1, motor2, DEFAULT_KP, DEFAULT_KI, DEFAULT_KD, DEFAULT_KF);
+    public FlyWheel(DcMotorEx motor, FlyWheelNum num) {
+        this(motor, DEFAULT_KP, DEFAULT_KI, DEFAULT_KD, DEFAULT_KF, num);
     }
 
     /**
      * Constructor with specified PIDF coefficients.
      */
-    public FlyWheel(DcMotorEx motor1, DcMotorEx motor2, double kP, double kI, double kD, double kF) {
-        this.motor1 = motor1;
-        this.motor2 = motor2;
-
+    public FlyWheel(DcMotorEx motor, double kP, double kI, double kD, double kF, FlyWheelNum number) {
+        this.motor = motor;
         setPIDFCoefficients(kP, kI, kD, kF);
-
+        this.flyWheelNumber = number;
         // Configure motors
-        this.motor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        this.motor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        this.motor1.setDirection(DcMotor.Direction.REVERSE);
-        this.motor2.setDirection(DcMotor.Direction.REVERSE);
-//        this.motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        this.motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        this.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        this.motor.setDirection(DcMotor.Direction.REVERSE);
+//        this.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        this.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 //        this.motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        this.motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
 
         pidTimer.reset();
     }
@@ -99,14 +100,18 @@ public class FlyWheel {
                     plotClient.sendYUnits2(initTime + 3, "Amps");    // Set Y2 axis label
 
                     // Left Y-Axis Series
-                    plotClient.sendSeriesNameLine(initTime + 4, "Target RPM", 1);
-                    plotClient.sendSeriesNameLine(initTime + 5, "Current RPM", 2);
+                    plotClient.sendSeriesNameLine(initTime + 4, "Target RPM ONE", 1);
+                    plotClient.sendSeriesNameLine(initTime + 5, "Current RPM ONE", 2);
+
+
+                    plotClient.sendSeriesNameLine(initTime + 4, "Target RPM TWO", 3);
+                    plotClient.sendSeriesNameLine(initTime + 5, "Current RPM TWO", 4);
 
                     // Right Y-Axis Series
-                    plotClient.sendSeriesNameLine2(initTime + 6, "Motor 1 Amps", 3);
-                    plotClient.sendSeriesNameLine2(initTime + 7, "Motor 2 Amps", 4);
+//                    plotClient.sendSeriesNameLine2(initTime + 6, "Motor 1 Amps", 3);
+//                    plotClient.sendSeriesNameLine2(initTime + 7, "Motor 2 Amps", 4);
 
-                    plotClient.sendKeyValue(initTime + 4, "TICKS_PER_REV", String.format(Locale.US, "%.2f", TICKS_PER_REVOLUTION));
+                    plotClient.sendKeyValue(initTime + 4, "TICKS_PER_REV" + flyWheelNumber, String.format(Locale.US, "%.2f", TICKS_PER_REVOLUTION));
                     // *** NEW: Add a marker to show when debug was enabled ***
                     plotClient.sendTextMarker(initTime + 5, "FlyWheel Debug Enabled", "top");
                 }
@@ -135,23 +140,26 @@ public class FlyWheel {
 
             if (isDebugEnabled && plotClient != null) {
                 long time = System.currentTimeMillis();
-                plotClient.sendKeyValue(time, "PID_P", String.format(Locale.US, "%.5f", this.kP));
-                plotClient.sendKeyValue(time, "PID_I", String.format(Locale.US, "%.5f", this.kI));
-                plotClient.sendKeyValue(time, "PID_D", String.format(Locale.US, "%.5f", this.kD));
-                plotClient.sendKeyValue(time, "PID_F", String.format(Locale.US, "%.5f", this.kF));
+                plotClient.sendKeyValue(time, "PID_P" + flyWheelNumber, String.format(Locale.US, "%.5f", this.kP));
+                plotClient.sendKeyValue(time, "PID_I" + flyWheelNumber, String.format(Locale.US, "%.5f", this.kI));
+                plotClient.sendKeyValue(time, "PID_D" + flyWheelNumber, String.format(Locale.US, "%.5f", this.kD));
+                plotClient.sendKeyValue(time, "PID_F" + flyWheelNumber, String.format(Locale.US, "%.5f", this.kF));
             }
         }
     }
+
+    public void incrementP(double increment) {setPIDFCoefficients(kP + increment, kI, kD, kF);}
+    public void incrementI(double increment) {setPIDFCoefficients(kP, kI + increment, kD, kF);}
+    public void incrementD(double increment) {setPIDFCoefficients(kP, kI, kD + increment, kF);}
+    public void incrementF(double increment) {setPIDFCoefficients(kP, kI, kD, kF + increment);}
+
+    public void incrementRPM(double increment) {setRPM(targetRPM + increment);}
 
     public double getkP() { return kP; }
     public double getkI() { return kI; }
     public double getkD() { return kD; }
     public double getkF() { return kF; }
-    public void setMotor2Direction(DcMotorSimple.Direction direction) {
-        if (this.motor2 != null) {
-            this.motor2.setDirection(direction);
-        }
-    }
+
     public void reset() {
         integralSum = 0;
         lastError = 0;
@@ -165,17 +173,21 @@ public class FlyWheel {
         this.targetRPM = rpm;
         this.targetTicksPerSecond = (rpm * TICKS_PER_REVOLUTION) / 60.0;
         if (rpm == 0) {
-            motor1.setPower(0);
-            motor2.setPower(0);
+            motor.setPower(0);
             integralSum = 0;
             lastError = 0;
         }
     }
+
+    public void setPower(double power) {
+        motor.setPower(power);
+    }
+
     public double getTargetRPM() {
         return this.targetRPM;
     }
     public double getCurrentRPM() {
-        double currentTicksPerSecond = motor2.getVelocity();
+        double currentTicksPerSecond = motor.getVelocity();
         return (currentTicksPerSecond * 60.0) / TICKS_PER_REVOLUTION;
     }
 
@@ -184,25 +196,29 @@ public class FlyWheel {
      */
     public void update() {
         if (targetRPM == 0) {
-            if (motor1.getPower() != 0 || motor2.getPower() != 0) {
-                motor1.setPower(0);
-                motor2.setPower(0);
+            if (motor.getPower() != 0) {
+                motor.setPower(0);
             }
 
             if (isDebugEnabled && plotClient != null) {
                 long time = System.currentTimeMillis();
-                plotClient.sendLineY(time, targetRPM, 1);
-                plotClient.sendLineY(time, getCurrentRPM(), 2);
-                plotClient.sendKeyValue(time, "motorPower", "0.00");
+                if (flyWheelNumber == FlyWheelNum.ONE) {
+                    plotClient.sendLineY(time, targetRPM, 1);
+                    plotClient.sendLineY(time, getCurrentRPM(), 2);
+                } else {
+                    plotClient.sendLineY(time, targetRPM, 3);
+                    plotClient.sendLineY(time, getCurrentRPM(), 4);
+                }
+                plotClient.sendKeyValue(time, "motorPower" + flyWheelNumber, "0.00");
                 // *** NEW: Send zero current when stopped ***
-                plotClient.sendLineY2(time, 0.0, 3); // Motor 1 current
-                plotClient.sendLineY2(time, 0.0, 4); // Motor 2 current
+//                plotClient.sendLineY2(time, 0.0, 3); // Motor 1 current
+//                plotClient.sendLineY2(time, 0.0, 4); // Motor 2 current
             }
 
             return;
         }
 
-        double currentVelocityTicksPerSecond = motor2.getVelocity();
+        double currentVelocityTicksPerSecond = motor.getVelocity();
         double error = targetTicksPerSecond - currentVelocityTicksPerSecond;
         double deltaTime = pidTimer.seconds();
         pidTimer.reset();
@@ -229,31 +245,32 @@ public class FlyWheel {
         double motorPowerBeforeClip = motorPower;
         motorPower = Range.clip(motorPower, (targetRPM >= 0) ? 0.0 : -1.0, (targetRPM >= 0) ? 1.0 : 0.0);
 
-        motor1.setPower(motorPower);
-        motor2.setPower(motorPower);
+        motor.setPower(motorPower);
 
 
         if (isDebugEnabled && plotClient != null) {
             long time = System.currentTimeMillis();
-            plotClient.sendLineY(time, targetRPM, 1);
-            plotClient.sendLineY(time, getCurrentRPM(), 2);
-
+            if (flyWheelNumber == FlyWheelNum.ONE) {
+                plotClient.sendLineY(time, targetRPM, 1);
+                plotClient.sendLineY(time, getCurrentRPM(), 2);
+            } else {
+                plotClient.sendLineY(time, targetRPM, 3);
+                plotClient.sendLineY(time, getCurrentRPM(), 4);
+            }
             // *** NEW: Get and plot motor current on the right Y-axis (Y2) ***
-            double motor1Amps = motor1.getCurrent(CurrentUnit.AMPS);
-            double motor2Amps = motor2.getCurrent(CurrentUnit.AMPS);
-            plotClient.sendLineY2(time, motor1Amps, 3); // Style 3 for Motor 1 Current
-            plotClient.sendLineY2(time, motor2Amps, 4); // Style 4 for Motor 2 Current
+//            double motorAmps = motor.getCurrent(CurrentUnit.AMPS);
+//            plotClient.sendLineY2(time, motorAmps, 3); // Style 3 for Motor 1 Current
             // Add current values to the key-value table for easy reading
-            plotClient.sendKeyValue(time, "motor1_Amps", String.format(Locale.US, "%.3f", motor1Amps));
-            plotClient.sendKeyValue(time, "motor2_Amps", String.format(Locale.US, "%.3f", motor2Amps));
+//            plotClient.sendKeyValue(time, "motor_Amps", String.format(Locale.US, "%.3f", motorAmps));
+            
 
 
-            plotClient.sendKeyValue(time, "motorPower", String.format(Locale.US, "%.3f", motorPower));
-            plotClient.sendKeyValue(time, "motorPowerBeforeClip", String.format(Locale.US, "%.3f", motorPowerBeforeClip));
-            plotClient.sendKeyValue(time, "error", String.format(Locale.US, "%.3f", error));
-            plotClient.sendKeyValue(time, "p", String.format(Locale.US, "%.3f", p));
-            plotClient.sendKeyValue(time, "i", String.format(Locale.US, "%.3f", i));
-            plotClient.sendKeyValue(time, "d", String.format(Locale.US, "%.3f", d));
+            plotClient.sendKeyValue(time, "motorPower" + flyWheelNumber, String.format(Locale.US, "%.3f", motorPower));
+            plotClient.sendKeyValue(time, "motorPowerBeforeClip" + flyWheelNumber, String.format(Locale.US, "%.3f", motorPowerBeforeClip));
+            plotClient.sendKeyValue(time, "error" + flyWheelNumber, String.format(Locale.US, "%.3f", error));
+            plotClient.sendKeyValue(time, "p" + flyWheelNumber, String.format(Locale.US, "%.3f", p));
+            plotClient.sendKeyValue(time, "i" + flyWheelNumber, String.format(Locale.US, "%.3f", i));
+            plotClient.sendKeyValue(time, "d" + flyWheelNumber, String.format(Locale.US, "%.3f", d));
         }
     }
 
@@ -266,13 +283,22 @@ public class FlyWheel {
         if (isDebugEnabled && plotClient != null) {
             long time = System.currentTimeMillis();
             plotClient.sendTextMarker(time, "FlyWheel Stopped", "mid");
-            plotClient.sendLineY(time, 0, 1);
-            plotClient.sendLineY(time, 0, 2);
+            if (flyWheelNumber == FlyWheelNum.ONE) {
+                plotClient.sendLineY(time, 0, 1);
+                plotClient.sendLineY(time, 0, 2);
+            } else {
+                plotClient.sendLineY(time, 0, 3);
+                plotClient.sendLineY(time, 0, 4);
+            }
             // *** NEW: Send zero current on stop ***
-            plotClient.sendLineY2(time, 0.0, 3);
-            plotClient.sendLineY2(time, 0.0, 4);
-            plotClient.sendKeyValue(time, "motorPower", "0.00");
+//            plotClient.sendLineY2(time, 0.0, 3);
+//            plotClient.sendLineY2(time, 0.0, 4);
+            plotClient.sendKeyValue(time, "motorPower" + flyWheelNumber, "0.00");
         }
+    }
+
+    public boolean isDebugEnabled() {
+        return isDebugEnabled;
     }
 
     /**
