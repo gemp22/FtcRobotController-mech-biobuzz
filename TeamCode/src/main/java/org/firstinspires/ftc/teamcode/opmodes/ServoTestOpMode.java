@@ -51,19 +51,19 @@ public class ServoTestOpMode extends OpMode {
 
         // --- Map the first CR servo ---
         try {
-            testCrServo1 = hardwareMap.get(CRServo.class, "cr_servo1");
+            testCrServo1 = hardwareMap.get(CRServo.class, "right_booster_servo");
             telemetry.addData("Status", "CR Servo 'right_booster_servo' found.");
         } catch (Exception e) {
-            telemetry.addData("Status", "ERROR: Could not find CR servo named 'cr_servo1'.");
+            telemetry.addData("Status", "ERROR: Could not find CR servo named 'right_booster_servo'.");
             testCrServo1 = null;
         }
 
         // --- Map the second CR servo ---
         try {
-            testCrServo2 = hardwareMap.get(CRServo.class, "cr_servo2");
+            testCrServo2 = hardwareMap.get(CRServo.class, "left_booster_servo");
             telemetry.addData("Status", "CR Servo 'left_booster_servo' found.");
         } catch (Exception e) {
-            telemetry.addData("Status", "ERROR: Could not find CR servo named 'cr_servo2'.");
+            telemetry.addData("Status", "ERROR: Could not find CR servo named 'left_booster_servo'.");
             testCrServo2 = null;
         }
 

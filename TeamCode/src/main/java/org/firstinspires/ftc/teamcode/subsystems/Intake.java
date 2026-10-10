@@ -145,8 +145,9 @@ public class Intake {
             switch (currentIntakeState) {
                 case FORWARD:
                     // NEW: Use PIDF to maintain the configured forward RPM
-                    rollerController.setRPM(forwardRPM);
-//                    rollerController.setPower(1.0);
+//                    rollerController.setRPM(forwardRPM);
+                    rollerController.setPower(1.0);
+
                     /* --- OLD CODE ---
 
                     intakeRoller.setPower(INTAKE_ROLLER_SPEED_FORWARD);
@@ -334,6 +335,11 @@ public class Intake {
 
     public IntakeRoller getRollerController() {
         return rollerController;
+    }
+
+    public void setIntakeRollerPower(double power) {
+//        lastIntakeRollerPower = power;
+        rollerController.setPower(power);
     }
 }
 
