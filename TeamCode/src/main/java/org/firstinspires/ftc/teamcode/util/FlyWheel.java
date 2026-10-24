@@ -69,7 +69,7 @@ public class FlyWheel {
         this.flyWheelNumber = number;
         // Configure motors
         this.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        this.motor.setDirection(DcMotor.Direction.REVERSE);
+        this.motor.setDirection((number != FlyWheelNum.ONE) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
 //        this.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 //        this.motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

@@ -72,7 +72,7 @@ public class IntakeRoller {
 
         // 2. Directions are set so positive power pulls game pieces into the robot.
         this.intakeMotor1.setDirection(DcMotor.Direction.FORWARD);
-        this.intakeMotor2.setDirection(DcMotor.Direction.FORWARD);
+        this.intakeMotor2.setDirection(DcMotor.Direction.REVERSE);
 
         // 3. ZeroPowerBehavior.FLOAT allows the rollers to spin freely when power is 0.
         this.intakeMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);

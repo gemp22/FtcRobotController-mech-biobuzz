@@ -6,9 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.oldcode.Lift;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.util.IntakeRoller;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.MovingStatistics;
@@ -73,7 +71,7 @@ public class Shooter_PID_Tuner extends OpMode {
         // Enable debug by default
         shooter.setDebug(true);
 
-        telemetry.addLine("Intake PID Tuner Initialized.");
+        telemetry.addLine("Shooter PID Tuner Initialized.");
         telemetry.addLine("G1: Drive & Intake | G2: Tune PIDF");
         telemetry.update();
     }
