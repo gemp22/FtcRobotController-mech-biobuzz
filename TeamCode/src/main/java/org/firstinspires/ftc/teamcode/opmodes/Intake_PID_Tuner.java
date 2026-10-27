@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.util.IntakeRoller;
 
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.MovingStatistics;
@@ -30,7 +31,7 @@ import java.util.Locale;
  * Triangle / Square: Adjust Forward RPM
  * SHARE Button:     Toggle UDP Debug
  */
-@TeleOp(name = "Intake PID Tuner", group = "Test")
+@Utility(name = "Intake PID Tuner")
 public class Intake_PID_Tuner extends OpMode {
 
     private RobotHardware robot;

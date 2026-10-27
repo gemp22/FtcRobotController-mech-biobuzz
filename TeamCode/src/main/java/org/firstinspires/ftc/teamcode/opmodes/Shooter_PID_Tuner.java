@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.MovingStatistics;
 import java.util.Locale;
@@ -32,7 +33,7 @@ import java.util.Locale;
  * Triangle / Square: Adjust Forward RPM
  * SHARE Button:     Toggle UDP Debug
  */
-@TeleOp(name = "Shooter PID Tuner", group = "Test")
+@Utility(name = "Shooter PID Tuner")
 public class Shooter_PID_Tuner extends OpMode {
 
     private RobotHardware robot;

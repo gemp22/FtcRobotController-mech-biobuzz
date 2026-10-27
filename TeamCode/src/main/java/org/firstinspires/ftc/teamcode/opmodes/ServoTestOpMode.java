@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
@@ -20,7 +21,7 @@ import com.qualcomm.robotcore.util.Range;
  *
  * Telemetry is displayed to show the current target position and power.
  */
-@TeleOp(name = "Servo Test", group = "Test")
+@Utility(name = "Servo Test")
 //@Disabled
 public class ServoTestOpMode extends OpMode {
 

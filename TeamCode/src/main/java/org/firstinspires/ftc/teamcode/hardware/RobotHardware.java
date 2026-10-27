@@ -132,6 +132,13 @@ public class RobotHardware {
     public Servo intakeServo1;
     public Servo intakeServo2;
 
+    public DigitalChannel beamSensorOne;
+    public DigitalChannel beamSensorTwo;
+    public DigitalChannel beamSensorThree;
+    public DigitalChannel beamSensorFour;
+    public DigitalChannel beamSensorFive;
+    public DigitalChannel beamSensorSix;
+
     // Color Sensors
 //    public NormalizedColorSensor leftCS;
 //    public NormalizedColorSensor midCS;
@@ -175,6 +182,14 @@ public class RobotHardware {
         feederServo2 = hardwareMap.get(Servo.class, FEEDER_SERVO_2_NAME);
         shooterMotor1 = hardwareMap.get(DcMotorEx.class, SHOOTER_MOTOR_1_NAME);
         shooterMotor2 = hardwareMap.get(DcMotorEx.class, SHOOTER_MOTOR_2_NAME);
+
+
+        beamSensorOne = hardwareMap.get(DigitalChannel.class, "beam1");
+        beamSensorTwo = hardwareMap.get(DigitalChannel.class, "beam2");
+        beamSensorThree = hardwareMap.get(DigitalChannel.class, "beam3");
+        beamSensorFour = hardwareMap.get(DigitalChannel.class, "beam4");
+        beamSensorFive = hardwareMap.get(DigitalChannel.class, "beam5");
+        beamSensorSix = hardwareMap.get(DigitalChannel.class, "beam6");
 
 //        liftLimitSwitch = hardwareMap.get(TouchSensor.class, LIFT_LIMIT_SWITCH_NAME);
 //        liftMotor1 = hardwareMap.get(DcMotorEx.class, LIFT_MOTOR_1_NAME);
